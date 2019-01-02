@@ -1,7 +1,6 @@
+#include "include/rules.h"
 
 
-#define HALL  0
-#define LED   2
 /*Constantes voor de Shiftregister afkomstig van de datasheet
   http://www.ti.com/lit/ds/symlink/sn74ahc595.pdf
 */
@@ -15,9 +14,7 @@
 #define A   A3
 #define B   A4
 #define C   A5 
-#define COM 2
-
-/* Constantes voor het schaakspel*/
+#define OUT 2
 
 
 //Stuursignaal voor de multiplexers
@@ -25,13 +22,14 @@ uint8_t counter = 0;
 
 //Byte die gestuurd wordt /
 uint8_t ser = 0;
-//toestand van COM/
+//toestand van OUT/
 uint8_t com; 
 
 /*Matrix voor de toestand van de Hall Effect Sensor 
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
+char chessPieces[8] ={PAWN,0,0,0,0,0,0,0};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -44,7 +42,7 @@ void setup() {
   pinMode(A,OUTPUT);
   pinMode(B,OUTPUT);
   pinMode(C,OUTPUT);
-  pinMode(COM, INPUT);
+  pinMode(OUT, INPUT);
 }
 
 //Schuift 8 Bits in de shift-register
@@ -76,20 +74,20 @@ void loop() {
 /*leest de waarden van de hall-effect sensoren */
 for(uint8_t i = 0; i < 8; i++){
   mux(i);
-  hallSensor[0][i] = digitalRead(COM); 
+  hallSensor[0][i] = digitalRead(OUT); 
   }
-
 for(uint8_t i = 0; i < 8; i++){
-  if(hallSensor[0][i]){
-    ser &= ~(1 << i );
-  }else{
-    ser |= ( 1 << i );
+  if(chessPieces[i] > 0){
+    if(~hallSensor[0][i])){
+      writeShift(1 << i +1);
+    }else{
+      writeShift(0x00);
     }
   }
+}
 
 
 
-writeShift(ser);
 
 
 
