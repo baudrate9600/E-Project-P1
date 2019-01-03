@@ -47,6 +47,8 @@ void setup() {
   pinMode(B,OUTPUT);
   pinMode(C,OUTPUT);
   pinMode(OUT, INPUT);
+
+  
 }
 
 //Schuift 8 Bits in de shift-register
@@ -86,8 +88,13 @@ void checkPiece(){
 void showMove(uint8_t piece){
 
 }
+struct coordinate{
+  uint8_t x; 
+  uint8_t y;
+};
 void loop() {
     /*leest de waarden van de hall-effect sensoren */
+    coordinate coord;
     readHall();
     if(isPicked == false && isPlayed == false){
       for(uint8_t i = 0; i < 8; i++){
@@ -95,6 +102,7 @@ void loop() {
           checkPiece();
           if(hallSensor[0][i] == HIGH){
             showMove(1);
+            coord.x = i;
             writeShift(1 << i+1 | 1 << i+2);
             isPicked = true;
           }else{
@@ -104,29 +112,24 @@ void loop() {
       }
       
     }else{
-
-        if(hallSensor[0][0] == LOW ){
+        if(hallSensor[0][coord.x] == LOW ){
             isPicked = false;
             isLegal = 0; 
             isPlayed = 0; 
-        }else if(hallSensor[0][1] == LOW){
-            chessPieces[0] = 0;
-            chessPieces[1] = WHITE_PAWN;
-            
+        }else if(hallSensor[0][coord.x+1] == LOW){
+            chessPieces[coord.x] = 0;
+            chessPieces[coord.x+1] = WHITE_PAWN;
             isPlayed = 1;
-            isLegal = 1;
-        }else if(hallSensor[0][2] == LOW){
-           
-            isLegal = 1;
-            chessPieces[0] = 0;
-            chessPieces[2] = WHITE_PAWN;
+        }else if(hallSensor[0][coord.x+2] == LOW){           
+            chessPieces[coord.x] = 0;
+            chessPieces[coord.x +2] = WHITE_PAWN;
             isPlayed = 1;
         }
     }
 
   if(isPlayed == true){
     writeShift(0x00);
-    return 0;
+    
   }
    
    
