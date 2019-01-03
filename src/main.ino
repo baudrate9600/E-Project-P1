@@ -27,12 +27,13 @@ uint8_t com;
 //
 bool isPicked = 0; 
 bool isLegal  = 0;
+bool isPlayed = 0;
 
 /*Matrix voor de toestand van de Hall Effect Sensor 
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-char chessPieces[8] ={PAWN,0,0,0,0,0,0,0};
+char chessPieces[8] ={WHITE_PAWN,0,0,0,0,0,0,0};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -79,33 +80,54 @@ void readHall(){
         hallSensor[0][i] = digitalRead(OUT); 
   }
 }
+void checkPiece(){
+
+}
+void showMove(uint8_t piece){
+
+}
 void loop() {
     /*leest de waarden van de hall-effect sensoren */
     readHall();
-    if(isPicked == false){
-        if(hallSensor[0][0] == HIGH && isLegal == 0){
-          writeShift(1 << 1 | 1 << 2);
-          isPicked = true;
-        }else{
-          writeShift(0x00);
-         }
+    if(isPicked == false && isPlayed == false){
+      for(uint8_t i = 0; i < 8; i++){
+        if(chessPieces[i] > 0){
+          checkPiece();
+          if(hallSensor[0][i] == HIGH){
+            showMove(1);
+            writeShift(1 << i+1 | 1 << i+2);
+            isPicked = true;
+          }else{
+            writeShift(0x00);
+          }
+        }
+      }
+      
     }else{
-        readHall();
+
         if(hallSensor[0][0] == LOW ){
-            isPicked = false; 
+            isPicked = false;
             isLegal = 0; 
+            isPlayed = 0; 
         }else if(hallSensor[0][1] == LOW){
             chessPieces[0] = 0;
-            chessPieces[1] = PAWN;
-            isPicked = false; 
+            chessPieces[1] = WHITE_PAWN;
+            
+            isPlayed = 1;
             isLegal = 1;
         }else if(hallSensor[0][2] == LOW){
-            isPicked = false;
+           
             isLegal = 1;
             chessPieces[0] = 0;
-            chessPieces[2] = PAWN;
+            chessPieces[2] = WHITE_PAWN;
+            isPlayed = 1;
         }
     }
+
+  if(isPlayed == true){
+    writeShift(0x00);
+    return 0;
+  }
    
    
   
