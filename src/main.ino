@@ -1,4 +1,4 @@
-#include "include/rules.h"
+#include "C:\Users\sojim\Documents\School\E-Project-P1\include\rules.h"
 
 
 /*Constantes voor de Shiftregister afkomstig van de datasheet
@@ -24,6 +24,9 @@ uint8_t counter = 0;
 uint8_t ser = 0;
 //toestand van OUT/
 uint8_t com; 
+//
+bool isPicked = 0; 
+bool isLegal  = 0;
 
 /*Matrix voor de toestand van de Hall Effect Sensor 
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
@@ -70,20 +73,42 @@ inline void mux(uint8_t value){
  digitalWrite(B, value  & ( 1 << 1));
  digitalWrite(C, value  & ( 1 << 2));
 }
+void readHall(){
+  for(uint8_t i = 0; i < 8; i++){
+        mux(i);
+        hallSensor[0][i] = digitalRead(OUT); 
+  }
+}
 void loop() {
-/*leest de waarden van de hall-effect sensoren */
-for(uint8_t i = 0; i < 8; i++){
-  mux(i);
-  hallSensor[0][i] = digitalRead(OUT); 
-  }
-for(uint8_t i = 0; i < 8; i++){
-  if(chessPieces[i] > 0){
-    if(~hallSensor[0][i])){
-      writeShift(1 << i +1);
+    /*leest de waarden van de hall-effect sensoren */
+    readHall();
+    if(isPicked == false){
+        if(hallSensor[0][0] == HIGH && isLegal == 0){
+          writeShift(1 << 1 | 1 << 2);
+          isPicked = true;
+        }else{
+          writeShift(0x00);
+         }
     }else{
-      writeShift(0x00);
+        readHall();
+        if(hallSensor[0][0] == LOW ){
+            isPicked = false; 
+            isLegal = 0; 
+        }else if(hallSensor[0][1] == LOW){
+            chessPieces[0] = 0;
+            chessPieces[1] = PAWN;
+            isPicked = false; 
+            isLegal = 1;
+        }else if(hallSensor[0][2] == LOW){
+            isPicked = false;
+            isLegal = 1;
+            chessPieces[0] = 0;
+            chessPieces[2] = PAWN;
+        }
     }
-  }
+   
+   
+  
 }
 
 
@@ -92,5 +117,4 @@ for(uint8_t i = 0; i < 8; i++){
 
 
 
-}
 
