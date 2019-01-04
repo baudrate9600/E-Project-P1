@@ -25,14 +25,16 @@ uint8_t ser = 0;
 //toestand van OUT/
 uint8_t com; 
 //
-bool isPicked = 0; 
+bool isLifted = 0; 
 bool isLegal  = 0;
+bool isPlayed = 0;
+int turn     = WHITE_TURN;
 
 /*Matrix voor de toestand van de Hall Effect Sensor 
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-char chessPieces[8] ={PAWN,0,0,0,0,0,0,0};
+uint8_t chessPieces[8] ={WHITE_PAWN,0,0,0,0,0,0,0};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -46,6 +48,8 @@ void setup() {
   pinMode(B,OUTPUT);
   pinMode(C,OUTPUT);
   pinMode(OUT, INPUT);
+
+  
 }
 
 //Schuift 8 Bits in de shift-register
@@ -77,35 +81,85 @@ void readHall(){
   for(uint8_t i = 0; i < 8; i++){
         mux(i);
         hallSensor[0][i] = digitalRead(OUT); 
+
   }
 }
+void checkPiece(){
+
+}
+struct coordinate{
+  uint8_t x; 
+  uint8_t y;
+};
+uint8_t showMove(uint8_t piece,struct coordinate pos){
+  if(turn == WHITE_TURN){
+    if(piece == WHITE_PAWN){
+      return ( 1 << pos.x + 1 | 1 << pos.x +2);
+    }
+  } 
+ 
+}
+uint8_t checkMove(uint8_t piece, struct coordinate pos){
+  if(turn == WHITE_TURN){
+    if(hallSensor[0][pos.x+1] == false){
+       isPlayed = 1;
+       isLifted = 0;
+       return pos.x+1;
+    }else if(hallSensor[0][pos.x+2] == false){
+       isPlayed = 1;
+       isLifted = 0;
+       return pos.x+2;
+    }
+  }
+
+  return pos.x;
+}
+
+uint8_t shiftbit = 0; 
 void loop() {
     /*leest de waarden van de hall-effect sensoren */
+    coordinate coord;
+    coordinate temp;
+
     readHall();
-    if(isPicked == false){
-        if(hallSensor[0][0] == HIGH && isLegal == 0){
-          writeShift(1 << 1 | 1 << 2);
-          isPicked = true;
-        }else{
-          writeShift(0x00);
-         }
-    }else{
-        readHall();
-        if(hallSensor[0][0] == LOW ){
-            isPicked = false; 
-            isLegal = 0; 
-        }else if(hallSensor[0][1] == LOW){
-            chessPieces[0] = 0;
-            chessPieces[1] = PAWN;
-            isPicked = false; 
-            isLegal = 1;
-        }else if(hallSensor[0][2] == LOW){
-            isPicked = false;
-            isLegal = 1;
-            chessPieces[0] = 0;
-            chessPieces[2] = PAWN;
+    
+    if(isLifted == false && isPlayed == false){
+      Serial.println("one");
+        for(uint8_t i = 0; i < 8; i++){
+          if(chessPieces[i] >= WHITE_PAWN && chessPieces[i] <= WHITE_KING && turn == WHITE_TURN){
+            shiftbit=0;
+            checkPiece();
+            if(hallSensor[0][i] == HIGH){
+              coord.x = i;
+              shiftbit = showMove(chessPieces[i], coord);
+              isLifted = true;
+            }
+          }
         }
+    }else if(isLifted == true && isPlayed == false){
+      
+      
+      if(hallSensor[0][coord.x] == false ){
+        
+          isPlayed = 0; 
+          isLifted = 0;
+      }
+      temp.x = checkMove(chessPieces[coord.x],coord);
+
+    }else if(isLifted == false && isPlayed == true){
+      
+      
+      shiftbit = 0;
+      if(hallSensor[0][temp.x] == true){
+        
+        isPlayed =false;
+        isLifted =true;
+      
+      }
+      
     }
+
+  writeShift(shiftbit);
    
    
   
