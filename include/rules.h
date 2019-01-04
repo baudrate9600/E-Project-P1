@@ -11,5 +11,8 @@
 #define BLACK_ROOK    10
 #define BLACK_QUEEN   11
 #define BLACK_KING    12 
+
+#define WHITE_TURN     0
+#define BLACK_TURN     1 
    
 

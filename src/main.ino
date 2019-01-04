@@ -28,12 +28,13 @@ uint8_t com;
 bool isLifted = 0; 
 bool isLegal  = 0;
 bool isPlayed = 0;
+char turn     = WHITE_TURN;
 
 /*Matrix voor de toestand van de Hall Effect Sensor 
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-uint8_t chessPieces[8] ={WHITE_PAWN,0,0,0,0,0,0,0};
+uint8_t chessPieces[8] ={WHITE_PAWN,0,0,0,0,0,0,BLACK_TURN};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -86,13 +87,16 @@ void readHall(){
 void checkPiece(){
 
 }
-void showMove(uint8_t piece){
-
-}
 struct coordinate{
   uint8_t x; 
   uint8_t y;
 };
+uint8_t showMove(uint8_t piece,struct coordinate pos){
+  if(piece == WHITE_PAWN){
+    return ( 1 << pos.x + 1 | 1 << pos.x +2);
+  }
+}
+
 uint8_t shiftbit = 0; 
 void loop() {
     /*leest de waarden van de hall-effect sensoren */
@@ -109,10 +113,8 @@ void loop() {
           shiftbit=0;
           checkPiece();
           if(hallSensor[0][i] == HIGH){
-            showMove(1);
             coord.x = i;
-            //writeShift(1 << i+1 | 1 << i+2);
-            shiftbit =(1 << i+1 | 1 << i+2);
+            shiftbit = (1 << coord.x + 1 | 1 << coord.x +2);
             isLifted = true;
           }else{
             
