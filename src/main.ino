@@ -124,7 +124,7 @@ void loop() {
     readHall();
     
     if(isLifted == false && isPlayed == false){
-      Serial.println("one");
+      
         for(uint8_t i = 0; i < 8; i++){
           if(chessPieces[i] >= WHITE_PAWN && chessPieces[i] <= WHITE_KING && turn == WHITE_TURN){
             shiftbit=0;
