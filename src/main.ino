@@ -97,12 +97,16 @@ struct coordinate{
 //Licht boord op en geeft aan waar het schaakstuk naar toe gespeeld kan worden 
 uint8_t showMove(uint8_t piece,struct coordinate pos){
   if(turn == WHITE_TURN){
-     if(piece == WHITE_PAWN){
-      return ( 1 << pos.x + 1 | 1 << pos.x + 2);
-    }
+     if(piece == WHITE_PAWN && chessPieces[pos.x+1] == 0){
+        return ( 1 << pos.x + 1 | 1 << pos.x + 2);
+      }else{
+        return 0; 
+      }
   }else if(turn == BLACK_TURN){
-    if(piece == BLACK_PAWN){
+    if(piece == BLACK_PAWN && chessPieces[pos.x-1] == 0){
       return ( 1 << pos.x - 1 | 1 << pos.x - 2);
+    }else{
+      return 0; 
     }
   }
    
@@ -111,21 +115,21 @@ uint8_t showMove(uint8_t piece,struct coordinate pos){
 //Kijkt als de schaakstuk geldig gezet werd 
 uint8_t checkMove(uint8_t piece, struct coordinate pos){
  if(turn == WHITE_TURN){
-   if(hallSensor[0][pos.x+1] == false){
+   if(hallSensor[0][pos.x+1] == false && chessPieces[pos.x+1] == 0){
        isPlayed = 1;
        isLifted = 0;
        return pos.x+1;
-    }else if(hallSensor[0][pos.x+2] == false){
+    }else if(hallSensor[0][pos.x+2] == false && chessPieces[pos.x+2] == 0){
        isPlayed = 1;
        isLifted = 0;
        return pos.x+2;
     }
  }else if(turn == BLACK_TURN){
-if(hallSensor[0][pos.x-1] == false){
+if(hallSensor[0][pos.x-1] == false && chessPieces[pos.x-1] == 0){
        isPlayed = 1;
        isLifted = 0;
        return pos.x-1;
-    }else if(hallSensor[0][pos.x-2] == false){
+    }else if(hallSensor[0][pos.x-2] == false && chessPieces[pos.x-1] == 0){
        isPlayed = 1;
        isLifted = 0;
        return pos.x-2;
