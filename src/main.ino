@@ -96,7 +96,7 @@ struct coordinate{
 };
 //Licht boord op en geeft aan waar het schaakstuk naar toe gespeeld kan worden 
 uint8_t showMove(uint8_t piece,struct coordinate pos){
-  uint8_t shiftbit, counter = 1;
+  uint8_t sbit =0, counter ;
   if(turn == WHITE_TURN){
     switch(piece){
       case WHITE_PAWN:
@@ -170,6 +170,7 @@ uint8_t checkMove(uint8_t piece, struct coordinate pos){
 uint8_t shiftbit = 0; 
 coordinate coord;
 coordinate temp;
+
 void loop() {
     /*leest de waarden van de hall-effect sensoren */
     readHall();
