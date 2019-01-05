@@ -15,6 +15,7 @@
 #define B   A4
 #define C   A5 
 #define OUT 2
+#define BUTTON 3
 
 
 //Stuursignaal voor de multiplexers
@@ -28,13 +29,13 @@ uint8_t com;
 bool isLifted = 0; 
 bool isLegal  = 0;
 bool isPlayed = 0;
-int turn     = WHITE_TURN;
+int turn     = BLACK_TURN;
 
 /*Matrix voor de toestand van de Hall Effect Sensor 
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-uint8_t chessPieces[8] ={0,0,0,WHITE_PAWN,0,0,0,0};
+uint8_t chessPieces[8] ={WHITE_PAWN,0,0,0,0,0,0,BLACK_PAWN};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -48,7 +49,7 @@ void setup() {
   pinMode(B,OUTPUT);
   pinMode(C,OUTPUT);
   pinMode(OUT, INPUT);
-
+  pinMode(BUTTON, INPUT);
   
 }
 
@@ -95,17 +96,22 @@ struct coordinate{
 };
 //Licht boord op en geeft aan waar het schaakstuk naar toe gespeeld kan worden 
 uint8_t showMove(uint8_t piece,struct coordinate pos){
-  
-    if(piece == WHITE_PAWN){
+  if(turn == WHITE_TURN){
+     if(piece == WHITE_PAWN){
       return ( 1 << pos.x + 1 | 1 << pos.x + 2);
     }
-  
+  }else if(turn == BLACK_TURN){
+    if(piece == BLACK_PAWN){
+      return ( 1 << pos.x - 1 | 1 << pos.x - 2);
+    }
+  }
+   
  
 }
 //Kijkt als de schaakstuk geldig gezet werd 
 uint8_t checkMove(uint8_t piece, struct coordinate pos){
-  
-    if(hallSensor[0][pos.x+1] == false){
+ if(turn == WHITE_TURN){
+   if(hallSensor[0][pos.x+1] == false){
        isPlayed = 1;
        isLifted = 0;
        return pos.x+1;
@@ -114,7 +120,18 @@ uint8_t checkMove(uint8_t piece, struct coordinate pos){
        isLifted = 0;
        return pos.x+2;
     }
-  
+ }else if(turn == BLACK_TURN){
+if(hallSensor[0][pos.x-1] == false){
+       isPlayed = 1;
+       isLifted = 0;
+       return pos.x-1;
+    }else if(hallSensor[0][pos.x-2] == false){
+       isPlayed = 1;
+       isLifted = 0;
+       return pos.x-2;
+    }
+ } 
+    
 
   return pos.x;
 }
@@ -129,29 +146,46 @@ void loop() {
     if(isLifted == false && isPlayed == false){
       shiftbit = 0;
       for(uint8_t i = 0; i < 8; i++){
-        if(chessPieces[i] == WHITE_PAWN){
+        if(turn == WHITE_TURN){
+          if(chessPieces[i] >= WHITE_PAWN && chessPieces[i] <= WHITE_KING){
              if(hallSensor[0][i] == HIGH){
-              coord.x = i;
+              coord.x  = i;
               isLifted = true; 
-              }
+            }
+          }
+        }else if(turn == BLACK_TURN){
+          if(chessPieces[i] >= BLACK_PAWN && chessPieces[i] <= BLACK_KING){
+             if(hallSensor[0][i] == HIGH){
+              coord.x  = i;
+              isLifted = true; 
+            }
+          }
         }
+        
        
       }
          
     }else if(isLifted == true && isPlayed == false){
       
-      temp.x = checkMove(WHITE_PAWN, coord);
-      shiftbit = showMove(WHITE_PAWN,coord);
+      temp.x   = checkMove(chessPieces[coord.x], coord);
+      shiftbit = showMove(chessPieces[coord.x],coord);
       if(hallSensor[0][coord.x] == LOW){
-        isLifted =false; 
+        isLifted = false; 
         isPlayed = false;
       }
     }else if(isLifted == false && isPlayed == true){
       
       shiftbit = 0;
       if(hallSensor[0][temp.x] == HIGH){
-        isLifted =true; 
+        isLifted = true; 
         isPlayed = false;
+      }
+      if(digitalRead(BUTTON) == true){
+        isLifted = false;
+        isPlayed = false; 
+        turn = ((turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
+        chessPieces[temp.x] = chessPieces[coord.x];
+        chessPieces[coord.x] = 0;
       }
     }
 
