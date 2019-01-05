@@ -34,7 +34,7 @@ int turn     = WHITE_TURN;
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-uint8_t chessPieces[8] ={WHITE_PAWN,0,0,0,0,0,0,0};
+uint8_t chessPieces[8] ={0,0,WHITE_PAWN,0,0,0,0,0};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -92,71 +92,61 @@ struct coordinate{
   uint8_t y;
 };
 uint8_t showMove(uint8_t piece,struct coordinate pos){
-  if(turn == WHITE_TURN){
+  
     if(piece == WHITE_PAWN){
-      return ( 1 << pos.x + 1 | 1 << pos.x +2);
+      return ( 1 << pos.x - 1 | 1 << pos.x - 2);
     }
-  } 
+  
  
 }
 uint8_t checkMove(uint8_t piece, struct coordinate pos){
-  if(turn == WHITE_TURN){
-    if(hallSensor[0][pos.x+1] == false){
+  
+    if(hallSensor[0][pos.x-1] == false){
        isPlayed = 1;
        isLifted = 0;
-       return pos.x+1;
-    }else if(hallSensor[0][pos.x+2] == false){
+       return pos.x-1;
+    }else if(hallSensor[0][pos.x-2] == false){
        isPlayed = 1;
        isLifted = 0;
-       return pos.x+2;
+       return pos.x-2;
     }
-  }
+  
 
   return pos.x;
 }
 
 uint8_t shiftbit = 0; 
+coordinate coord;
+    coordinate temp;
 void loop() {
     /*leest de waarden van de hall-effect sensoren */
-    coordinate coord;
-    coordinate temp;
-
+    
+    int k = 2;
+   
     readHall();
     
     if(isLifted == false && isPlayed == false){
-      
-        for(uint8_t i = 0; i < 8; i++){
-          if(chessPieces[i] >= WHITE_PAWN && chessPieces[i] <= WHITE_KING && turn == WHITE_TURN){
-            shiftbit=0;
-            checkPiece();
-            if(hallSensor[0][i] == HIGH){
-              coord.x = i;
-              shiftbit = showMove(chessPieces[i], coord);
-              isLifted = true;
-            }
-          }
-        }
-    }else if(isLifted == true && isPlayed == false){
-      
-      
-      if(hallSensor[0][coord.x] == false ){
-        
-          isPlayed = 0; 
-          isLifted = 0;
-      }
-      temp.x = checkMove(chessPieces[coord.x],coord);
-
-    }else if(isLifted == false && isPlayed == true){
-      
-      
       shiftbit = 0;
-      if(hallSensor[0][temp.x] == true){
+      if(hallSensor[0][k] == HIGH){
+        coord.x = k;
         
-        isPlayed =false;
-        isLifted =true;
-      
+        isLifted = true; 
+      }   
+    }else if(isLifted == true && isPlayed == false){
+      Serial.println(2);
+      temp.x = checkMove(WHITE_PAWN, coord);
+      shiftbit = showMove(WHITE_PAWN,coord);
+      if(hallSensor[0][coord.x] == LOW){
+        isLifted =false; 
+        isPlayed = false;
       }
-      
+    }else if(isLifted == false && isPlayed == true){
+      Serial.println(1);
+      shiftbit = 0;
+      if(hallSensor[0][temp.x] == HIGH){
+        isLifted =true; 
+        isPlayed = false;
+      }
     }
 
   writeShift(shiftbit);
