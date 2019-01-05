@@ -1,3 +1,4 @@
 # E-Project-P1
-Project voor digitale schaakboord en xylofoon 
+Project voor digitale schaakboord 
+
 
