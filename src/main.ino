@@ -35,7 +35,7 @@ int turn     = WHITE_TURN;
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-uint8_t chessPieces[8] ={WHITE_ROOK,0,0,0,0,0,0,BLACK_PAWN};
+uint8_t chessPieces[8] ={WHITE_ROOK,0,0,0,0,0,0,BLACK_ROOK};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -99,8 +99,11 @@ uint8_t showMove(uint8_t piece,struct coordinate pos){
   uint8_t sbit =0;
   int k = 0;
   int counter;
+  //WHITE turn
+  //******************************************************************************
   if(turn == WHITE_TURN){
     switch(piece){
+
       case WHITE_PAWN:
         //Speciale case, wanneer pion eerste zet speelt
         if(chessPieces[pos.x+1] == 0 && chessPieces[pos.x+2] == 0 && pos.x == 0){
@@ -128,6 +131,8 @@ uint8_t showMove(uint8_t piece,struct coordinate pos){
         }
         return sbit;
     }
+//BLACK turn
+  //******************************************************************************
   }else if(turn == BLACK_TURN){
     switch(piece){
       case BLACK_PAWN:
@@ -139,6 +144,22 @@ uint8_t showMove(uint8_t piece,struct coordinate pos){
         }else{
           return 0;
         }
+    case BLACK_ROOK:
+        for(int i = 1; i < 8; i++){
+          if(chessPieces[pos.x+i] == 0){
+            sbit |= (1 << pos.x+i);
+          }else{
+            break;
+          }
+        }
+        for(int i = 1; i < pos.x+1; i++){
+          if(chessPieces[pos.x-i] == 0){
+            sbit |= (1 << pos.x-i);
+          }else{
+            break;
+          }
+        }
+        return sbit;
     }
   }
    
@@ -146,6 +167,8 @@ uint8_t showMove(uint8_t piece,struct coordinate pos){
 }
 //Kijkt als de schaakstuk geldig gezet werd 
 uint8_t checkMove(uint8_t piece, struct coordinate pos){
+  //WHITE turn
+  //******************************************************************************
  if(turn == WHITE_TURN){
    switch(piece){
 
@@ -174,12 +197,11 @@ uint8_t checkMove(uint8_t piece, struct coordinate pos){
             return pos.x-i;
           }
      } 
-
-   
-
     default:
       return pos.x;
    }
+  //BLACK turn
+  //******************************************************************************
  }else if(turn == BLACK_TURN){
    switch(piece){
 
@@ -193,6 +215,21 @@ uint8_t checkMove(uint8_t piece, struct coordinate pos){
           isLifted = 0;
           return pos.x-2;
         }
+      case BLACK_ROOK:
+     for(int i = 1; i < 8-pos.x; i++){
+          if(chessPieces[pos.x+i] == 0 && hallSensor[0][pos.x+i] == false){
+            isPlayed = 1;
+            isLifted = 0;
+            return pos.x+i;
+          }
+      }
+     for(int i = 1; i < pos.x+1; i++){
+          if(chessPieces[pos.x-i] == 0 && hallSensor[0][pos.x-i] == false){
+            isPlayed = 1;
+            isLifted = 0;
+            return pos.x-i;
+          }
+     } 
     default:
       return 0; 
     } 
