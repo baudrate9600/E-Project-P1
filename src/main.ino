@@ -283,7 +283,7 @@ coordinate temp;
 void loop() {
     /*leest de waarden van de hall-effect sensoren */
     readHall();
-   
+    /*toestand een*/
     if(isLifted == false && isPlayed == false){
       Serial.println("1");
       shiftbit = 0;
@@ -306,7 +306,7 @@ void loop() {
         
        
       }
-         
+    /*toestand twee*/
     }else if(isLifted == true && isPlayed == false){
       
       temp.x   = checkMove(chessPieces[coord.x], coord);
@@ -317,6 +317,7 @@ void loop() {
         isPlayed = false;
       }
       Serial.println("2");
+    /*toestand drie*/
     }else if(isLifted == true  && isLifted == true ){
       Serial.println("3");
       if(hallSensor[0][temp.x] == LOW && hallSensor[0][coord.x] == HIGH){
@@ -326,6 +327,7 @@ void loop() {
         isLifted =false;
         isPlayed =false;
       }
+    /*toestand drie*/
     }else if(isLifted == false && isPlayed == true){
       Serial.println("4");
       shiftbit = 0;
