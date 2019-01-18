@@ -1,22 +1,6 @@
-#include "C:\Users\sojim\Documents\School\E-Project-P1\include\rules.h"
-
-
-/*Constantes voor de Shiftregister afkomstig van de datasheet
-  http://www.ti.com/lit/ds/symlink/sn74ahc595.pdf
-*/
-#define SER   A0
-#define RCLK  A1
-#define SRCLK A2
-
-/*Constantes voor de Multiplexer afkomstig van de datasheet
-  http://www.ti.com/lit/ds/symlink/cd4051b.pdf
-*/
-#define A   A3
-#define B   A4
-#define C   A5 
-#define OUT 2
-#define BUTTON 3
-
+#include "include/Shift_Mux.h"
+#include "include/rules.h"
+#define BUTTON 5 
 
 //Stuursignaal voor de multiplexers
 uint8_t counter = 0;
@@ -48,47 +32,25 @@ void setup() {
   pinMode(A,OUTPUT);
   pinMode(B,OUTPUT);
   pinMode(C,OUTPUT);
-  pinMode(OUT, INPUT);
+  pinMode(OUT0, INPUT);
+  pinMode(OUT1, INPUT);
+  pinMode(OUT2, INPUT);
+  pinMode(OUT3, INPUT);
+
   pinMode(BUTTON, INPUT);
   
 }
 
-//Schuift 8 Bits in de shift-register
-void writeShift(uint8_t bits){
- digitalWrite(RCLK, LOW);
-//Schuift de meest significante bit eerst in 
-  for(int i = 7; i >=0; i--){
-    digitalWrite(SRCLK, LOW);
 
-    if(bits & (1 << i)){
-      digitalWrite(SER, HIGH);
-    }else{
-      digitalWrite(SER, LOW);
-    }
-    digitalWrite(SRCLK, HIGH);
-  }
-
-  digitalWrite(RCLK, HIGH);
-
-}
-
-//Zorgt voor het stuursignaal voor de multiplexer*/
-inline void mux(uint8_t value){
- digitalWrite(A, value  & ( 1 << 0));
- digitalWrite(B, value  & ( 1 << 1));
- digitalWrite(C, value  & ( 1 << 2));
-}
 //Leest de hall-effect Sensoren 
 void readHall(){
   for(uint8_t i = 0; i < 8; i++){
         mux(i);
-        hallSensor[0][i] = digitalRead(OUT); 
+        hallSensor[0][i] = digitalRead(OUT0); 
 
   }
 }
-void checkPiece(){
 
-}
 //Coordinaat voor schaakstuk 
 struct coordinate{
   uint8_t x; 
@@ -173,8 +135,6 @@ uint8_t showMove(uint8_t piece,struct coordinate pos){
         return sbit;
     }
   }
-   
- 
 }
 //Kijkt als de schaakstuk geldig gezet werd 
 uint8_t checkMove(uint8_t piece, struct coordinate pos){
