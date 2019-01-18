@@ -7,16 +7,20 @@
 #define SER   A0
 #define RCLK  A1
 #define SRCLK A2
-
+#define SER1   A3
+#define RCLK1  A4
+#define SRCLK1 A5
 /*Constantes voor de Multiplexer afkomstig van de datasheet
   http://www.ti.com/lit/ds/symlink/cd4051b.pdf
 */
-#define A   A3
-#define B   A4
-#define C   A5 
-#define OUT 2
-#define BUTTON 3
-
+#define A   4
+#define B   3
+#define C   2 
+#define OUT0 10
+#define OUT1 11
+#define OUT2 12 
+#define OUT3 13
+#define BUTTON 5 
 
 //Stuursignaal voor de multiplexers
 uint8_t counter = 0;
@@ -44,11 +48,15 @@ void setup() {
   pinMode(SER,  OUTPUT);
   pinMode(RCLK, OUTPUT);
   pinMode(SRCLK,OUTPUT);
+  pinMode(SER1,  OUTPUT);
+  pinMode(RCLK1, OUTPUT);
+  pinMode(SRCLK1,OUTPUT);
+
 //Enable Multiplexer /
   pinMode(A,OUTPUT);
   pinMode(B,OUTPUT);
   pinMode(C,OUTPUT);
-  pinMode(OUT, INPUT);
+  pinMode(OUT0, INPUT);
   pinMode(BUTTON, INPUT);
   
 }
@@ -82,7 +90,7 @@ inline void mux(uint8_t value){
 void readHall(){
   for(uint8_t i = 0; i < 8; i++){
         mux(i);
-        hallSensor[0][i] = digitalRead(OUT); 
+        hallSensor[0][i] = digitalRead(OUT0); 
 
   }
 }
