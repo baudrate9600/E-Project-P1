@@ -1,4 +1,4 @@
-#include "C:\Users\sojim\Documents\School\E-Project-P1\include\rules.h"
+#include "rules.h"
 
 
 /*Constantes voor de Shiftregister afkomstig van de datasheet
