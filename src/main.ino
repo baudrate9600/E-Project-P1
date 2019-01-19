@@ -39,7 +39,7 @@ int turn     = WHITE_TURN;
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-uint8_t chessPieces[8] ={WHITE_PAWN,0,0,0,0,0,0, BLACK_ROOK};
+uint8_t chessPieces[8] ={WHITE_ROOK,0,0,0,0,0,0, BLACK_ROOK};
 
 void setup() {
   // put your setup code here, to run once: 
@@ -121,6 +121,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
     
     case WHITE_ROOK:
         for(int i = 1; i < 8; i++){
+          if(pos.x+i == 8){
+            break; 
+          }
           if(chessPieces[pos.x+i] == 0){
             
             sbit |= (1 << (uint8_t)(pos.x+i));
@@ -158,6 +161,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
         }
     case BLACK_ROOK:
         for(int i = 1; i < 8; i++){
+          if(pos.x+i == 8){
+            break; 
+          }
           if(chessPieces[pos.x+i] == 0){
             sbit |= (1 << pos.x+i);
           }else if(chessPieces[pos.x+i] >= WHITE_PAWN && chessPieces[pos.x+i] <= WHITE_KING){
@@ -351,6 +357,8 @@ void loop(){
         Serial.println("has Played");
       }
     }
+  Serial.println(shiftbit);
+  Serial.println(coord.x);
   writeShift(shiftbit);
 }
 
