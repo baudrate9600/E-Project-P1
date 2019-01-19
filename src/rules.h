@@ -14,5 +14,7 @@
 
 #define WHITE_TURN     0
 #define BLACK_TURN     1 
+
+#define EMPTY          0
    
 
