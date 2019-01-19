@@ -40,8 +40,8 @@ int turn     = WHITE_TURN;
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
 uint8_t chessPieces[2][8] ={
-  WHITE_ROOK,0,0,0,0,0,0, 0,
-  0,        0,0,0,0,0,BLACK_PAWN,0 
+  0,0,0,0,0,0,0, BLACK_PAWN,
+  WHITE_PAWN,        0,0,0,0,0,0,0
   };
 
 void setup() {
@@ -115,9 +115,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
       case WHITE_PAWN:
         //Speciale case, wanneer pion eerste zet speelt
         if(chessPieces[pos.y][pos.x+1] == 0 && chessPieces[pos.y][pos.x+2] == 0 && pos.x == 0){
-          return ( 1 << pos.x + 1 | 1 << pos.x + 2);
+          return ( 1 << pos.x + 1 + pos.y * 8| 1 << pos.x + 2+ pos.y * 8);
         }else if(chessPieces[pos.y][pos.x+1] == 0){
-          return ( 1 << pos.x + 1 );
+          return ( 1 << pos.x + 1 + pos.y * 8 );
         }else{
           return 0;
         }
@@ -129,9 +129,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
           }
           if(chessPieces[pos.y][pos.x+i] == 0){
             
-            sbit |= (1 << (uint8_t)(pos.x+i));
+            sbit |= (1 << (pos.x+i));
           }else if(chessPieces[pos.y][pos.x+i] >= BLACK_PAWN && chessPieces[pos.y][pos.x+i] <= BLACK_KING){
-            sbit |= (1 << (uint8_t)(pos.x+i));
+            sbit |= (1 << (pos.x+i));
             break;
           }
           else{
@@ -198,7 +198,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
   //******************************************************************************
  if(turn == WHITE_TURN){
    if(piece == WHITE_PAWN){
-      if(hallSensor[0][pos.x+1] == false && chessPieces[pos.y][pos.x+1] == 0){
+      if(hallSensor[pos.y][pos.x+1] == false && chessPieces[pos.y][pos.x+1] == 0){
         isPlayed = 1;
         isLifted = 0;
         pos.x +=1;
