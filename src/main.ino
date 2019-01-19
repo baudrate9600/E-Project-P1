@@ -40,8 +40,8 @@ int turn     = WHITE_TURN;
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
 uint8_t chessPieces[2][8] ={
-  WHITE_ROOK,0,0,0,0,0,0, BLACK_PAWN,
-  0,        0,0,0,0,0,0, 
+  WHITE_ROOK,0,0,0,0,0,0, 0,
+  0,        0,0,0,0,0,BLACK_PAWN,0 
   };
 
 void setup() {
@@ -156,9 +156,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
       case BLACK_PAWN:
         //Speciale case, wanneer pion eerste zet speelt
         if(chessPieces[pos.y][pos.x-1] == 0 && chessPieces[pos.y][pos.x-2] == 0 && pos.x == 7){
-          return ( 1 << pos.x - 1 | 1 << pos.x - 2);
+          return ( 1 << pos.x - 1 + pos.y * 8 | 1 << pos.x - 2 + pos.y * 8);
         }else if(chessPieces[pos.y][pos.x-1] == 0){
-          return ( 1 << pos.x - 1 );
+          return ( 1 << pos.x - 1 + pos.y * 8);
         }else{
           return 0;
         }
@@ -249,7 +249,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
   //******************************************************************************
  }else if(turn == BLACK_TURN){
    if(piece == BLACK_PAWN){
-      if(hallSensor[0][pos.x-1] == false && chessPieces[pos.y][pos.x-1] == 0){
+      if(hallSensor[pos.y][pos.x-1] == false && chessPieces[pos.y][pos.x-1] == 0){
 
           isPlayed = 1;
           isLifted = 0;
@@ -257,7 +257,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
           pos.x-=1;
           
           return pos;
-        }else if(hallSensor[0][pos.x-2] == false && chessPieces[pos.y][pos.x-1] == 0 && pos.x == 7){
+        }else if(hallSensor[pos.y][pos.x-2] == false && chessPieces[pos.y][pos.x-1] == 0 && pos.x == 7){
           isPlayed = 1;
           isLifted = 0;
           pos.x -=2;
@@ -342,7 +342,7 @@ void loop(){
       temp   = checkMove(chessPieces[coord.y][coord.x], coord);
       shiftbit = showMove(chessPieces[coord.y][coord.x],coord);
       //Serial.println(coord.x);
-      if(hallSensor[0][coord.x] == LOW){
+      if(hallSensor[coord.y][coord.x] == LOW){
         isLifted = false; 
         isPlayed = false;
       }
@@ -361,7 +361,7 @@ void loop(){
     }else if(isLifted == false && isPlayed == true){
       Serial.println("4");
       shiftbit = 0;
-      if(hallSensor[0][temp.x] == HIGH){
+      if(hallSensor[temp.y][temp.x] == HIGH){
         isLifted = true; 
         isPlayed = false;
         
