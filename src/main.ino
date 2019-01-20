@@ -41,9 +41,11 @@ int turn     = WHITE_TURN;
   [0][0] correspondeert met de eerste Hall Effect sensor (rechts boven)
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
-uint8_t chessPieces[2][8] ={
+uint8_t chessPieces[4][8] ={
   EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY, BLACK_ROOK,
-  WHITE_ROOK,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY
+  EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
+  EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,
+  WHITE_ROOK,WHITE_ROOK,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY,EMPTY
   };
 
 void setup() {
@@ -67,13 +69,13 @@ void setup() {
 }
 
 //Schuift 16 Bits in de shift-register
-void writeShift(uint16_t bits){
+void writeShift(uint32_t bits){
  digitalWrite(RCLK, LOW);
 //Schuift de meest significante bit eerst in 
   for(int i = 15; i >=0; i--){
     digitalWrite(SRCLK, LOW);
 
-    if(bits & (1 << i)){
+    if((uint16_t)bits & (1 << i)){
       digitalWrite(SER, HIGH);
     }else{
       digitalWrite(SER, LOW);
@@ -82,6 +84,21 @@ void writeShift(uint16_t bits){
   }
 
   digitalWrite(RCLK, HIGH);
+
+  digitalWrite(RCLK1, LOW);
+//Schuift de meest significante bit eerst in 
+  for(int i = 15; i >=0; i--){
+    digitalWrite(SRCLK1, LOW);
+
+    if((uint16_t)(bits >> 16) & (1 << i)){
+      digitalWrite(SER1, HIGH);
+    }else{
+      digitalWrite(SER1, LOW);
+    }
+    digitalWrite(SRCLK1, HIGH);
+  }
+
+  digitalWrite(RCLK1, HIGH);
 
 }
 
@@ -97,6 +114,8 @@ void readHall(){
         mux(i);
         hallSensor[0][i] = digitalRead(OUT0); 
         hallSensor[1][i] = digitalRead(OUT1);
+        hallSensor[2][i] = digitalRead(OUT2); 
+        hallSensor[3][i] = digitalRead(OUT3);
 
   }
 }
@@ -107,8 +126,8 @@ struct coordinate{
   uint8_t y;
 };
 //Licht boord op en geeft aan waar het schaakstuk naar toe gespeeld kan worden 
-uint16_t showMove(uint8_t piece,struct coordinate pos){
-  uint16_t sbit =0;
+uint32_t showMove(uint8_t piece,struct coordinate pos){
+  uint32_t sbit =0;
   //WHITE turn
   //******************************************************************************
   if(turn == WHITE_TURN){
@@ -117,11 +136,14 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
       case WHITE_PAWN:
         //Speciale case, wanneer pion eerste zet speelt
         if(chessPieces[pos.y][pos.x+1] == 0 && chessPieces[pos.y][pos.x+2] == 0 && pos.x == 0){
-          return ( 1 << pos.x + 1 + pos.y * 8| 1 << pos.x + 2+ pos.y * 8);
+          return ( 1UL << pos.x + 1 + pos.y * 8| 1UL << pos.x + 2+ pos.y * 8);
         }else if(chessPieces[pos.y][pos.x+1] == 0){
-          return ( 1 << pos.x + 1 + pos.y * 8 );
+          return ( 1UL << pos.x + 1 + pos.y * 8 );
+        }else if(chessPieces[pos.y + 1][pos.x + 1] >= BLACK_PAWN && chessPieces[pos.y + 1][pos.x + 1] >= BLACK_KING) {
+        }else if(chessPieces[pos.y + 1][pos.x + 1] >= BLACK_PAWN && chessPieces[pos.y + 1][pos.x + 1] >= BLACK_KING){
+
         }else{
-          return 0;
+          return 0; 
         }
     
     case WHITE_ROOK:
@@ -131,9 +153,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
           }
           if(chessPieces[pos.y][pos.x+i] == 0){
             
-            sbit |= (1 << (pos.x+i + 8 * pos.y));
+            sbit |= (1UL << (pos.x+i + 8 * pos.y));
           }else if(chessPieces[pos.y][pos.x+i] >= BLACK_PAWN && chessPieces[pos.y][pos.x+i] <= BLACK_KING){
-            sbit |= (1 << (pos.x+i + 8 * pos.y));
+            sbit |= (1UL << (pos.x+i + 8 * pos.y));
             break;
           }
           else{
@@ -142,29 +164,29 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
         }
         for(int i = 1; i < pos.x+1; i++){
           if(chessPieces[pos.y][pos.x-i] == 0){
-            sbit |= (1 << pos.x-i + 8 * pos.y);
+            sbit |= (1UL << pos.x-i + 8 * pos.y);
           }else if(chessPieces[pos.y][pos.x-i] >= BLACK_PAWN && chessPieces[pos.y][pos.x-i] <= BLACK_KING){
-            sbit |= (1 << pos.x-i + 8 * pos.y);
+            sbit |= (1UL << pos.x-i + 8 * pos.y);
 
             break;
           }
         }
-        for(int i = 1; i < 2; i++){
-          if(pos.y == 1){
+        for(int i = 1; i < 4; i++){
+          if(pos.y == 3){
             break;
           }
           if(chessPieces[pos.y +i][pos.x] == 0){
-            sbit |= (1 << pos.x + 8 *i);
+            sbit |= (1UL << pos.x + 8 *i);
           }else if(chessPieces[pos.y + i][pos.x] >= BLACK_PAWN && chessPieces[pos.y+i][pos.x-i] <= BLACK_KING){
-            sbit |= (1 << pos.x + 8 *i);
+            sbit |= (1UL << pos.x + 8 *i);
             break;
           }
         }
         for(int i = 1; i < pos.y +1; i++){
           if(chessPieces[pos.y - i][pos.x] == 0){
-            sbit |= (1 << pos.x + 8 * (pos.y -i));
+            sbit |= (1UL << pos.x + 8 * (pos.y -i));
           }else if(chessPieces[pos.y - i][pos.x] >= BLACK_PAWN && chessPieces[pos.y-i][pos.x-i] <= BLACK_KING){
-            sbit |= (1 << pos.x + 8 * (pos.y -i));
+            sbit |= (1UL << pos.x + 8 * (pos.y -i));
             break;
           }
         }
@@ -179,9 +201,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
       case BLACK_PAWN:
         //Speciale case, wanneer pion eerste zet speelt
         if(chessPieces[pos.y][pos.x-1] == 0 && chessPieces[pos.y][pos.x-2] == 0 && pos.x == 7){
-          return ( 1 << pos.x - 1 + pos.y * 8 | 1 << pos.x - 2 + pos.y * 8);
+          return ( 1UL << pos.x - 1 + pos.y * 8 | 1UL << pos.x - 2 + pos.y * 8);
         }else if(chessPieces[pos.y][pos.x-1] == 0){
-          return ( 1 << pos.x - 1 + pos.y * 8);
+          return ( 1UL << pos.x - 1 + pos.y * 8);
         }else{
           return 0;
         }
@@ -191,9 +213,9 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
             break; 
           }
           if(chessPieces[pos.y][pos.x+i] == 0){
-            sbit |= (1 << pos.x+i + pos.y * 8) ;
+            sbit |= (1UL << pos.x+i + pos.y * 8) ;
           }else if(chessPieces[pos.y][pos.x+i] >= WHITE_PAWN && chessPieces[pos.y][pos.x+i] <= WHITE_KING){
-            sbit |= (1 << pos.x+i + pos.y * 8) ;
+            sbit |= (1UL << pos.x+i + pos.y * 8) ;
             break;
           }else{
             break;
@@ -201,30 +223,30 @@ uint16_t showMove(uint8_t piece,struct coordinate pos){
         }
         for(int i = 1; i < pos.x+1; i++){
           if(chessPieces[pos.y][pos.x-i] == 0){
-            sbit |= (1 << pos.x-i + pos.y * 8);
+            sbit |= (1UL << pos.x-i + pos.y * 8);
           }else if(chessPieces[pos.y][pos.x-i] >= WHITE_PAWN && chessPieces[pos.y][pos.x-i] <= WHITE_KING){
-            sbit |= (1 << pos.x-i + pos.y * 8);
+            sbit |= (1UL << pos.x-i + pos.y * 8);
             break;
           }else{
             break;
           }
         }
-        for(int i = 1; i < 2; i++){
-          if(pos.y == 1){
+        for(int i = 1; i < 4; i++){
+          if(pos.y == 31){
             break;
           }
           if(chessPieces[pos.y +i][pos.x] == 0){
-            sbit |= (1 << pos.x + 8 *i);
+            sbit |= (1UL << pos.x + 8 *i);
           }else if(chessPieces[pos.y + i][pos.x] >= WHITE_PAWN && chessPieces[pos.y+i][pos.x-i] <= WHITE_KING){
-            sbit |= (1 << pos.x + 8 *i);
+            sbit |= (1UL << pos.x + 8 *i);
             break;
           }
         }
         for(int i = 1; i < pos.y +1; i++){
           if(chessPieces[pos.y - i][pos.x] == 0){
-            sbit |= (1 << pos.x + 8 * (pos.y -i));
+            sbit |= (1UL << pos.x + 8 * (pos.y -i));
           }else if(chessPieces[pos.y - i][pos.x] >= WHITE_PAWN && chessPieces[pos.y-i][pos.x-i] <= WHITE_PAWN){
-            sbit |= (1 << pos.x + 8 * (pos.y -i));
+            sbit |= (1UL << pos.x + 8 * (pos.y -i));
             break;
           }
         }
@@ -284,8 +306,8 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
           }
       
      } 
-     for(int i = 1; i <  2;i++){
-       if(pos.y == 1){
+     for(int i = 1; i <  4;i++){
+       if(pos.y == 3){
             break;
           }
         if(chessPieces[pos.y + i][pos.x] == 0 && hallSensor[pos.y + i][pos.x] == false){
@@ -372,8 +394,8 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
             }
          } 
      }
-     for(int i = 1; i <  2;i++){
-       if(pos.y == 1){
+     for(int i = 1; i <  4;i++){
+       if(pos.y == 3){
             break;
           }
         if(chessPieces[pos.y + i][pos.x] == 0 && hallSensor[pos.y + i][pos.x] == false){
@@ -417,7 +439,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
 void takeMove(){
 
 }
-uint16_t shiftbit = 0; 
+uint32_t shiftbit = 0; 
 coordinate coord;
 coordinate temp;
 
@@ -428,7 +450,7 @@ void loop(){
     if(isLifted == false && isPlayed == false){
       Serial.println("1");
       shiftbit = 0;
-      for(uint8_t i = 0; i < 2; i++){
+      for(uint8_t i = 0; i < 4; i++){
           for(uint8_t j = 0; j < 8;j++){
           if(turn == WHITE_TURN){
             if(chessPieces[i][j] >= WHITE_PAWN && chessPieces[i][j] <= WHITE_KING){
