@@ -42,10 +42,10 @@ int turn     = WHITE_TURN;
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
 uint8_t chessPieces[4][8] ={
-  WHITE_BISHOP ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY,
+  WHITE_ROOK ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_ROOK,
   EMPTY ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY,
   EMPTY ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY,
-  EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_ROOK
+  WHITE_BISHOP  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN
   };
 
 void setup() {
@@ -346,7 +346,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
       
      } 
      for(int i = 1; i <  4;i++){
-       if(pos.y == 3){
+       if(pos.y + i == 4){
             break;
           }
         if(chessPieces[pos.y + i][pos.x] == 0 && hallSensor[pos.y + i][pos.x] == false){
@@ -462,7 +462,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
   //******************************************************************************
  }else if(turn == BLACK_TURN){
    if(piece == BLACK_PAWN){
-     Serial.println(chessPieces[pos.y][pos.x-2]);
+    
       if(hallSensor[pos.y][pos.x-1] == false && chessPieces[pos.y][pos.x-1] == 0){
 
           isPlayed = 1;
@@ -502,7 +502,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
             isLifted = 0;
              pos.x-=i;
             return pos;
-          }else if(chessPieces[pos.y][pos.x-i] >= WHITE_PAWN && chessPieces[pos.y][pos.x-i] <=WHITE_BISHOP){
+          }else if(chessPieces[pos.y][pos.x-i] >= WHITE_PAWN && chessPieces[pos.y][pos.x-i] <=WHITE_KING){
             if(hallSensor[pos.y][pos.x-i] == HIGH){
               isPlayed = 1;
               isLifted = 1;
