@@ -46,10 +46,10 @@ int turn     = WHITE_TURN;
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
 uint8_t chessPieces[4][8] ={
-  WHITE_ROOK , WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_KING ,
-  WHITE_BISHOP,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_QUEEN,
-  WHITE_QUEEN ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_BISHOP,
-  WHITE_KING  ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_ROOK
+  WHITE_ROOK , EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_KING ,
+  WHITE_PAWN,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_QUEEN,
+  WHITE_PAWN ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_BISHOP,
+  WHITE_KING  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_ROOK
   };
 
 void setup() {
@@ -1650,7 +1650,7 @@ void loop(){
         if(turn == WHITE_TURN){
           Serial.println("WHITE TURN ");
         }else{
-          Serial.println("BLACK TURN ")
+          Serial.println("BLACK TURN ");
         }
         Serial.print("(");Serial.print(coord.x);Serial.print(",");Serial.print(coord.y);Serial.print(")");
         Serial.print(" -> ");
