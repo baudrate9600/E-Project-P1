@@ -46,10 +46,10 @@ int turn     = WHITE_TURN;
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
 uint8_t chessPieces[4][8] ={
-  EMPTY ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY ,
-   EMPTY,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,EMPTY,
-  EMPTY ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY,
-  EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY
+  EMPTY , WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY ,
+   EMPTY,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,EMPTY,
+  EMPTY ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_ROOK  ,EMPTY,
+  EMPTY  ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY
   };
 
 void setup() {
