@@ -46,10 +46,10 @@ int turn     = WHITE_TURN;
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
 uint8_t chessPieces[4][8] ={
-  EMPTY , WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY ,
-   EMPTY,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,EMPTY,
-  EMPTY ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_ROOK  ,EMPTY,
-  EMPTY  ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY
+  WHITE_ROOK , WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_KING ,
+  WHITE_BISHOP,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_QUEEN,
+  WHITE_QUEEN ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_BISHOP,
+  WHITE_KING  ,WHITE_PAWN  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,BLACK_PAWN  ,BLACK_ROOK
   };
 
 void setup() {
@@ -457,6 +457,8 @@ uint32_t showMove(uint8_t piece,struct coordinate pos){
           }else if(chessPieces[pos.y + i][pos.x] >= WHITE_PAWN && chessPieces[pos.y+i][pos.x] <= WHITE_KING){
             sbit |= (1UL << pos.x + 8 *(pos.y +i));
             break;
+          }else{
+            break;
           }
         }
         for(int i = 1; i < pos.y +1; i++){
@@ -464,6 +466,8 @@ uint32_t showMove(uint8_t piece,struct coordinate pos){
             sbit |= (1UL << pos.x + 8 * (pos.y -i));
           }else if(chessPieces[pos.y - i][pos.x] >= WHITE_PAWN && chessPieces[pos.y-i][pos.x] <= WHITE_PAWN){
             sbit |= (1UL << pos.x + 8 * (pos.y -i));
+            break;
+          }else{
             break;
           }
         }
@@ -1642,14 +1646,25 @@ void loop(){
         isPlayed = false;
         
       }
-      
+      if(millis() % 1000 == 0){
+        if(turn == WHITE_TURN){
+          Serial.println("WHITE TURN ");
+        }else{
+          Serial.println("BLACK TURN ")
+        }
+        Serial.print("(");Serial.print(coord.x);Serial.print(",");Serial.print(coord.y);Serial.print(")");
+        Serial.print(" -> ");
+        Serial.print("(");Serial.print(temp.x);Serial.print(",");Serial.print(temp.y);Serial.print(")");
+        
+      }
       if(digitalRead(BUTTON) == true){
         isLifted = false;
         isPlayed = false; 
         turn = ((turn == WHITE_TURN) ? BLACK_TURN : WHITE_TURN);
         chessPieces[temp.y][temp.x] = chessPieces[coord.y][coord.x];
         chessPieces[coord.y][coord.x] = 0;
-        //Serial.println("has Played");
+        
+        
       }
     }
   
