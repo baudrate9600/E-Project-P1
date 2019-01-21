@@ -46,10 +46,10 @@ int turn     = WHITE_TURN;
   [7][7] correspondeert met de laatste (64ste) Hall Effect sensor (links onder)*/
 char hallSensor[8][8] = {0};
 uint8_t chessPieces[4][8] ={
-  EMPTY ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY ,
-   EMPTY,WHITE_KING  ,BLACK_KING  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY,
+  BLACK_KING ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY ,
+   EMPTY,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY,
   EMPTY ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY,
-  EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY
+  EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,EMPTY  ,WHITE_KING
   };
 
 void setup() {
@@ -137,7 +137,7 @@ uint32_t showMove(uint8_t piece,struct coordinate pos){
   if(turn == WHITE_TURN){
     
 
-      if(piece == WHITE_PAWN){
+    if(piece == WHITE_PAWN){
         //Speciale case, wanneer pion eerste zet speelt
         if(chessPieces[pos.y][pos.x+1] == 0 && chessPieces[pos.y][pos.x+2] == 0 && pos.x == 1){
           return ( 1UL << pos.x + 1 + pos.y * 8| 1UL << pos.x + 2+ pos.y * 8);
@@ -592,7 +592,50 @@ uint32_t showMove(uint8_t piece,struct coordinate pos){
         }
        
         return sbit;
-      }else{
+    }else if(piece == BLACK_KING){
+      if(chessPieces[pos.y][pos.x+1] == 0 ||  chessPieces[pos.y][pos.x+1] >= WHITE_PAWN && chessPieces[pos.y][pos.x+1] <=WHITE_KING ){
+        if(pos.x + 1 == 8){}else{
+          sbit|=  ( 1UL << pos.x + 1 + pos.y * 8);
+        }
+      }
+      if(chessPieces[pos.y][pos.x-1] == 0 || chessPieces[pos.y][pos.x-1] >= WHITE_PAWN && chessPieces[pos.y][pos.x-1] <=WHITE_KING ){
+        if(pos.x - 1 == -1){}else{
+          sbit|=  ( 1UL << pos.x - 1 + pos.y * 8);
+        }
+      }
+      if(chessPieces[pos.y+1][pos.x] == 0 || chessPieces[pos.y+1][pos.x] >= WHITE_PAWN && chessPieces[pos.y+1][pos.x] <=WHITE_KING){
+        if(pos.y + 1 == 4){}else{
+          sbit|=  ( 1UL << pos.x + (pos.y+1) * 8);
+        }
+      }
+      if(chessPieces[pos.y-1][pos.x] == 0 || chessPieces[pos.y-1][pos.x] >= WHITE_PAWN && chessPieces[pos.y-1][pos.x] <=WHITE_KING){
+        if(pos.y - 1 == -1){}else{
+          sbit|=  ( 1UL << pos.x + (pos.y-1) * 8);
+        }
+      }
+      if(chessPieces[pos.y+1][pos.x+1] == 0 || chessPieces[pos.y+1][pos.x+1] >= WHITE_PAWN && chessPieces[pos.y+1][pos.x+1] <=WHITE_KING){
+        if(pos.x + 1 == 8 || pos.y + 1 == 4){}else{
+          sbit|=  ( 1UL << pos.x +1 + (pos.y+1) * 8);
+        }
+      }
+      if(chessPieces[pos.y-1][pos.x+1] == 0 || chessPieces[pos.y-1][pos.x+1] >= WHITE_PAWN && chessPieces[pos.y-1][pos.x+1] <=WHITE_KING){
+        if(pos.x + 1 == 8 || pos.y - 1 == -1){}else{
+          sbit|=  ( 1UL << pos.x +1 + (pos.y-1) * 8);
+        }
+
+      }
+      if(chessPieces[pos.y-1][pos.x-1] == 0 || chessPieces[pos.y-1][pos.x-1] >= WHITE_PAWN && chessPieces[pos.y-1][pos.x-1] <=WHITE_KING){
+        if(pos.x - 1 == -1 || pos.y - 1 == -1){}else{
+          sbit|=  ( 1UL << pos.x  -1+ (pos.y-1) * 8);
+        }
+
+      } if(chessPieces[pos.y+1][pos.x-1] == 0 || chessPieces[pos.y+1][pos.x-1] >= WHITE_PAWN && chessPieces[pos.y+1][pos.x-1] <=WHITE_KING){
+        if(pos.x - 1 == -1 || pos.y + 1 == 4){}else{
+          sbit|=  ( 1UL << pos.x -1 + (pos.y+1) * 8);
+        }
+      }
+      return sbit;
+    }else{
       return sbit;
     }
   }
@@ -1028,7 +1071,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
               isLifted = 1;
               pos.x-=1;
            pos.y+=1;
-            
+            pos.x -=1;
             return pos;
             }
       }
@@ -1198,7 +1241,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
             }
           }
         }
-    }else if(piece == BLACK_QUEEN){
+  }else if(piece == BLACK_QUEEN){
        for(int i = 1; i < 8-pos.x; i++){
           if(chessPieces[pos.y][pos.x+i] == 0 && hallSensor[pos.y][pos.x+i] == false){
             
@@ -1339,7 +1382,140 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
             }
           }
         }
-      }else{
+  }else if (piece == BLACK_KING){
+     if(chessPieces[pos.y][pos.x+1] == 0 && hallSensor[pos.y ][pos.x+1] == false){
+        if(pos.x + 1 == 8){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.x+=1;
+            return pos;
+        }
+      }else if( chessPieces[pos.y][pos.x+1] >= WHITE_PAWN && chessPieces[pos.y][pos.x+1] <=WHITE_KING){
+        if(hallSensor[pos.y][pos.x+1] == HIGH){
+              isPlayed = 1;
+              isLifted = 1;
+            pos.x +=1;
+            return pos;
+            }
+      }
+
+      if(chessPieces[pos.y][pos.x-1] == 0 && hallSensor[pos.y ][pos.x-1] == false){
+        if(pos.x - 1 == -1){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.x-=1;
+            return pos;
+        }
+      }else if( chessPieces[pos.y][pos.x-1] >= WHITE_PAWN && chessPieces[pos.y][pos.x-1] <=WHITE_KING){
+        if(hallSensor[pos.y][pos.x-1] == HIGH){
+              isPlayed = 1;
+              isLifted = 1;
+            pos.x -=1;
+            return pos;
+            }
+      }
+      if(chessPieces[pos.y+1][pos.x] == 0 && hallSensor[pos.y + 1][pos.x] == false){
+        if(pos.y + 1 == 4){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.y+=1;
+            return pos;
+        }
+      }else if( chessPieces[pos.y+1][pos.x] >= WHITE_PAWN && chessPieces[pos.y+1][pos.x] <=WHITE_KING){
+        if(hallSensor[pos.y+1][pos.x] == HIGH){
+              isPlayed = 1;
+              isLifted = 1;
+             pos.y+=1;
+            return pos;
+            }
+      }
+      if(chessPieces[pos.y-1][pos.x] == 0 && hallSensor[pos.y - 1][pos.x] == false){
+        if(pos.y - 1 == -1){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.y-=1;
+            return pos;
+        }
+      }else if( chessPieces[pos.y-1][pos.x] >= WHITE_PAWN && chessPieces[pos.y-1][pos.x] <=WHITE_KING){
+        if(hallSensor[pos.y-1][pos.x] == HIGH){
+              isPlayed = 1;
+              isLifted = 1;
+            pos.y -=1;
+            return pos;
+            }
+      }
+      if(chessPieces[pos.y+1][pos.x+1] == 0 && hallSensor[pos.y + 1][pos.x+1] == false){
+        if(pos.x + 1 == 8 || pos.y + 1 == 4){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.x+=1;
+           pos.y+=1;
+            return pos;
+        }
+      }else if( chessPieces[pos.y+1][pos.x+1] >= WHITE_PAWN && chessPieces[pos.y+1][pos.x+1] <=WHITE_KING){
+        if(hallSensor[pos.y+1][pos.x+1] == HIGH){
+              isPlayed = 1;
+              isLifted = 1;
+            pos.x +=1;
+            pos.y +=1;
+            return pos;
+            }
+      }
+      if(chessPieces[pos.y-1][pos.x+1] == 0 && hallSensor[pos.y -1 ][pos.x + 1] == false){
+        if(pos.x + 1 == 8 || pos.y - 1 == -1){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.x+=1;
+           pos.y-=1;
+            return pos;
+        }
+
+      }else if(chessPieces[pos.y-1][pos.x+1]  >= WHITE_PAWN && chessPieces[pos.y-1][pos.x+1] <=WHITE_KING){
+        if(hallSensor[pos.y-1][pos.x+1] == HIGH){
+              isPlayed = 1;
+              isLifted = 1;
+            pos.x+=1;
+           pos.y-=1;
+            return pos;
+            }
+      }
+      if(chessPieces[pos.y-1][pos.x-1] == 0 && hallSensor[pos.y - 1][pos.x - 1] == false){
+        if(pos.x - 1 == -1 || pos.y - 1 == -1){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.x-=1;
+           pos.y-=1;
+            return pos;
+        }
+
+      }else if(chessPieces[pos.y-1][pos.x-1]  >= WHITE_PAWN && chessPieces[pos.y-1][pos.x-1]<=WHITE_KING){
+        if(hallSensor[pos.y-1][pos.x-1] == HIGH){
+              isPlayed = 1;
+              isLifted = 1;
+            pos.x-=1;
+           pos.y-=1;
+            return pos;
+            }
+      }
+      if(chessPieces[pos.y+1][pos.x-1] == 0&& hallSensor[pos.y + 1][pos.x -1] == false){
+        if(pos.x - 1 == -1 || pos.y + 1 == 4){}else{
+          isPlayed = 1;
+            isLifted = 0;
+           pos.x-=1;
+           pos.y+=1;
+            return pos;
+        }
+      }else if( chessPieces[pos.y+1][pos.x-1] >= WHITE_PAWN && chessPieces[pos.y +1][pos.x-1] <=WHITE_KING){
+        if(hallSensor[pos.y+1][pos.x-1] == HIGH){
+          isPlayed = 1;
+              isLifted = 1;
+              pos.x-=1;
+           pos.y+=1;
+            pos.x -=1;
+            return pos;
+            }
+      }
+  }else{
       return pos;
     }
  }
