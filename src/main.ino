@@ -140,7 +140,7 @@ uint32_t showMove(uint8_t piece,struct coordinate pos){
     if(piece == WHITE_PAWN){
     
         //Speciale case, wanneer pion eerste zet speelt
-        if(chessPieces[pos.y][pos.x+1] == 0 && chessPieces[pos.y][pos.x+2] == 0 && pos.x == 1){
+        if(chessPieces[pos.y][pos.x+1] == 0 && chessPieces[pos.y][pos.x+2] == 0 && pos.x == 0){
           sbit |= ( 1UL << pos.x + 1 + pos.y * 8| 1UL << pos.x + 2+ pos.y * 8);
         }else if(chessPieces[pos.y][pos.x+1] == 0){
           sbit |= ( 1UL << pos.x + 1 + pos.y * 8 );
@@ -680,7 +680,7 @@ struct coordinate checkMove(uint8_t piece, struct coordinate pos){
         isLifted = 0;
         pos.x +=1;
         return pos;
-      }else if(hallSensor[pos.y][pos.x+2] == false && chessPieces[pos.y][pos.x+2] == 0 && pos.x == 1){
+      }else if(hallSensor[pos.y][pos.x+2] == false && chessPieces[pos.y][pos.x+2] == 0 && pos.x == 0){
        isPlayed = 1;
        isLifted = 0;
         pos.x += 2;
